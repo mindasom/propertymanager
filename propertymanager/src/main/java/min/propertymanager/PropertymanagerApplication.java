@@ -1,34 +1,74 @@
 package min.propertymanager;
 
+import min.propertymanager.helpers.ConfigurationHelper;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.Collections;
 import java.util.Properties;
 import java.util.logging.Logger;
 
 @SpringBootApplication
 public class PropertymanagerApplication {
-	public static final String CONFIG_PROPERTY_DIR = "property.dir";
-	public static final String CONFIG_SERVER_PORT = "server.port";
-	public static final String DEFAULT_SERVER_PORT = "8080";
-
 	private static final Logger logger = Logger.getLogger(PropertymanagerApplication.class.getName());
 
 	public static void main(String[] args) {
-		Properties properties = getPropertiesFromConfigFileArg(args);
+		Properties properties = new Properties();
+
+		if (args != null || args.length > 0) {
+			ConfigurationHelper.loadPropertiesFromConfigFile(properties, args[0]);
+		}
 
 		SpringApplication propertyManagerApp = new SpringApplication(PropertymanagerApplication.class);
 
-		propertyManagerApp.setDefaultProperties(
-				Collections.singletonMap(CONFIG_SERVER_PORT,
-						properties.getProperty(CONFIG_SERVER_PORT, DEFAULT_SERVER_PORT)));
+		setServerPort(properties, propertyManagerApp);
+		setPropertyFilesDirectory(properties, propertyManagerApp);
 
 		propertyManagerApp.run(args);
+	}
+
+	static void setServerPort(Properties properties, SpringApplication propertyManagerApp) {
+		propertyManagerApp.setDefaultProperties(
+				Collections.singletonMap(ConfigurationHelper.CONFIG_SERVER_PORT,
+						properties.getProperty(ConfigurationHelper.CONFIG_SERVER_PORT, ConfigurationHelper.DEFAULT_SERVER_PORT)));
+	}
+
+	static void setPropertyFilesDirectory(Properties properties, SpringApplication propertyManagerApp) {
+		String propertyFilesDirectory = properties.getProperty(ConfigurationHelper.CONFIG_PROPERTY_DIR, ConfigurationHelper.DEFAULT_PROPERTY_DIR);
+
+		String validPropertyFilesDirectoryName =
+				ConfigurationHelper.validatePropertyFilesDirectory(propertyFilesDirectory);
+		ConfigurationHelper.createPropertyFilesDirectory(validPropertyFilesDirectoryName);
+
+		propertyManagerApp.setDefaultProperties(Collections.singletonMap(ConfigurationHelper.CONFIG_PROPERTY_DIR, propertyFilesDirectory));
+	}
+
+	static boolean createPropertyFilesDirectory(String propertyFilesDirectoryName) {
+		File newPropertyFilesDirectoryFile = new File(propertyFilesDirectoryName);
+
+		if (newPropertyFilesDirectoryFile.exists()) {
+			return false;
+		}
+
+		boolean created = newPropertyFilesDirectoryFile.mkdir();
+
+		if (created) {
+			logger.info("Created property files directory " + newPropertyFilesDirectoryFile.getAbsolutePath());
+		} else {
+			logger.severe("Unable to create property files directory " + newPropertyFilesDirectoryFile.getAbsolutePath());
+			System.exit(1);
+		}
+
+		return created;
+	}
+
+	static boolean isReusable(boolean isDrectory, boolean canWrite) {
+		return isDrectory && canWrite;
+	}
+
+	static boolean isRecreatable(boolean canWrite, boolean isDefaultPropertyDirectory) {
+		return canWrite || !isDefaultPropertyDirectory;
 	}
 
 	static Properties getPropertiesFromConfigFileArg(String[] args) {
@@ -40,31 +80,7 @@ public class PropertymanagerApplication {
 
 		final String configFilePath = args[0];
 
-		try (final FileReader configFileReader = new FileReader(configFilePath)) {
-			properties.load(configFileReader);
-			logger.info("Successfully loaded config file: " + configFilePath);
 
-			return properties;
-		} catch (FileNotFoundException fileNotFoundException) {
-			logger.warning("Unable to open config file. Trying to get resources from class loader");
-
-			try (InputStream configFileStream =
-						 PropertymanagerApplication.class.getClassLoader().getResourceAsStream(configFilePath)) {
-				if (configFileStream == null) {
-					logger.warning("Unalbe to open config file using class loader.");
-				} else {
-					properties.load(configFileStream);
-
-					logger.info("Successfully loaded config file: " + configFilePath);
-
-					return properties;
-				}
-			} catch (IOException e) {
-				logger.warning("Unable to read config file\n" + e.getMessage());
-			}
-		} catch (IOException e) {
-			logger.warning("Unable to read config file\n" + e.getMessage());
-		}
 
 		return properties;
 	}
