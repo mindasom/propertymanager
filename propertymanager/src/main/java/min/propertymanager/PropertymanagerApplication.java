@@ -5,6 +5,7 @@ import min.propertymanager.helpers.ConfigurationHelper;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Properties;
 import java.util.logging.Logger;
@@ -17,21 +18,29 @@ public class PropertymanagerApplication {
 		Properties properties = new Properties();
 
 		if (args != null && args.length > 0) {
+			logger.info("Command line arguments " + Arrays.toString(args));
 			ConfigFileHelper.loadPropertiesFromConfigFile(properties, args[0]);
 		}
 
 		SpringApplication propertyManagerApp = new SpringApplication(PropertymanagerApplication.class);
 
-		setServerPort(properties, propertyManagerApp);
+		String[] newArgs = Arrays.copyOf(args, args.length);
+
+		setServerPort(properties, propertyManagerApp, newArgs);
 		setPropertyFilesDirectory(properties, propertyManagerApp);
 
-		propertyManagerApp.run(args);
+		propertyManagerApp.run(newArgs);
 	}
 
-	static void setServerPort(Properties properties, SpringApplication propertyManagerApp) {
+	static void setServerPort(Properties properties, SpringApplication propertyManagerApp, String[] newArgs) {
+		String serverPort = properties.getProperty(ConfigurationHelper.CONFIG_SERVER_PORT, ConfigurationHelper.DEFAULT_SERVER_PORT);
+
 		propertyManagerApp.setDefaultProperties(
-				Collections.singletonMap(ConfigurationHelper.CONFIG_SERVER_PORT,
-						properties.getProperty(ConfigurationHelper.CONFIG_SERVER_PORT, ConfigurationHelper.DEFAULT_SERVER_PORT)));
+				Collections.singletonMap(ConfigurationHelper.CONFIG_SERVER_PORT, serverPort));
+
+		newArgs[0] = "--server.port=" + serverPort;
+
+		logger.info("Set server port " + serverPort);
 	}
 
 	static void setPropertyFilesDirectory(Properties properties, SpringApplication propertyManagerApp) {

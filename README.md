@@ -30,3 +30,23 @@ mvn install
 ```bash
 mvn spring-boot:run
 ```
+
+### build & run propertymonitor
+
+```bash
+mvn spring-boot:run
+```
+
+if running propertymonitor shows an error like 
+
+```bash
+SEVERE: Unable to monitor: C:\projects\propertyManager\propertyManager\propertymanager\propertymonitor\properties does not exist
+```
+
+create the directory, or add config file as command line argument
+
+## configure properties
+
+you can configure properties using properties file.
+
+
