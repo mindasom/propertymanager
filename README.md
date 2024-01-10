@@ -47,6 +47,29 @@ create the directory, or add config file as command line argument
 
 ## configure properties
 
-you can configure properties using properties file.
+you can customize propertymanager and propertymonitor using command line argument - property file.
 
+```bash
+ mvn spring-boot:run -Dspring-boot.run.arguments=testConfig.properties
+```
+
+### configurable properties - propertymanager
+
+```properties
+# directory that maintains property files
+property.dir = properties
+# property manager server port
+server.port = 8068
+```
+
+### configurable properties - propertymonitor
+
+```properties
+# directory that propertymonitor monitors to get new property files
+monitor.dir = properties
+# java style regex for valid key pattern
+key.filter = .+
+# property manager url prefix to add/update new properties
+server.url = http://localhost:8080/properties/send
+```
 
