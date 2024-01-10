@@ -1,10 +1,10 @@
 package min.propertymanager;
 
+import min.propertyhelpers.ConfigFileHelper;
 import min.propertymanager.helpers.ConfigurationHelper;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import java.io.*;
 import java.util.Collections;
 import java.util.Properties;
 import java.util.logging.Logger;
@@ -16,8 +16,8 @@ public class PropertymanagerApplication {
 	public static void main(String[] args) {
 		Properties properties = new Properties();
 
-		if (args != null || args.length > 0) {
-			ConfigurationHelper.loadPropertiesFromConfigFile(properties, args[0]);
+		if (args != null && args.length > 0) {
+			ConfigFileHelper.loadPropertiesFromConfigFile(properties, args[0]);
 		}
 
 		SpringApplication propertyManagerApp = new SpringApplication(PropertymanagerApplication.class);
@@ -42,46 +42,5 @@ public class PropertymanagerApplication {
 		ConfigurationHelper.createPropertyFilesDirectory(validPropertyFilesDirectoryName);
 
 		propertyManagerApp.setDefaultProperties(Collections.singletonMap(ConfigurationHelper.CONFIG_PROPERTY_DIR, propertyFilesDirectory));
-	}
-
-	static boolean createPropertyFilesDirectory(String propertyFilesDirectoryName) {
-		File newPropertyFilesDirectoryFile = new File(propertyFilesDirectoryName);
-
-		if (newPropertyFilesDirectoryFile.exists()) {
-			return false;
-		}
-
-		boolean created = newPropertyFilesDirectoryFile.mkdir();
-
-		if (created) {
-			logger.info("Created property files directory " + newPropertyFilesDirectoryFile.getAbsolutePath());
-		} else {
-			logger.severe("Unable to create property files directory " + newPropertyFilesDirectoryFile.getAbsolutePath());
-			System.exit(1);
-		}
-
-		return created;
-	}
-
-	static boolean isReusable(boolean isDrectory, boolean canWrite) {
-		return isDrectory && canWrite;
-	}
-
-	static boolean isRecreatable(boolean canWrite, boolean isDefaultPropertyDirectory) {
-		return canWrite || !isDefaultPropertyDirectory;
-	}
-
-	static Properties getPropertiesFromConfigFileArg(String[] args) {
-		final Properties properties = new Properties();
-
-		if (args == null || args.length == 0) {
-			return properties;
-		}
-
-		final String configFilePath = args[0];
-
-
-
-		return properties;
 	}
 }

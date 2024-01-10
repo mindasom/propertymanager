@@ -1,6 +1,5 @@
 package min.propertymanager.helpers;
 
-import min.propertymanager.PropertymanagerApplication;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -17,15 +16,6 @@ class ConfigurationHelperTest {
 
     @TempDir
     private File tempDir;
-
-    @Test
-    public void testLoadPropertiesFromConfigFile() {
-        Properties properties = new Properties();
-        ConfigurationHelper.loadPropertiesFromConfigFile(properties, TEST_CONFIG_PROPERTIES_FILE);
-
-        assertEquals(TEST_PROPERTIES_FILE_DIR, properties.getProperty(ConfigurationHelper.CONFIG_PROPERTY_DIR));
-        assertEquals(TEST_SERVER_PORT, properties.getProperty(ConfigurationHelper.CONFIG_SERVER_PORT));
-    }
 
     @Test
     public void testValidatePropertyFilesDirectoryWithReusableOne() {
