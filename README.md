@@ -16,6 +16,8 @@ is a shared library
 
 ## build & run
 
+in order to build projects, you need maven and jdk 18
+
 ### build propertyutil
 
 ```bash
