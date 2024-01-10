@@ -45,6 +45,8 @@ SEVERE: Unable to monitor: C:\projects\propertyManager\propertyManager\propertym
 
 create the directory, or add config file as command line argument
 
+propertymanager must be running in order to start propertymonitor.
+
 ## configure properties
 
 you can customize propertymanager and propertymonitor using command line argument - property file.
