@@ -36,7 +36,5 @@ public class MonitorScheduler {
                     PropertymonitorApplication.serverUrl,
                     HttpClient.newHttpClient()));
         }
-
-        taskExecutor.shutdown();
     }
 }
